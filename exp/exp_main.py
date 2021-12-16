@@ -243,7 +243,7 @@ class Exp_Main(Exp_Basic):
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
                 batch_x_mark = batch_x_mark.detach().cpu().numpy()
-                batch_y_mark = batch_y.detach().cpu().numpy()
+                batch_y_mark = batch_y_mark.detach().cpu().numpy()
 
                 pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
                 true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
