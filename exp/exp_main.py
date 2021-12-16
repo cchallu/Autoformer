@@ -91,6 +91,19 @@ class Exp_Main(Exp_Basic):
         vali_data, vali_loader = self._get_data(flag='val')
         test_data, test_loader = self._get_data(flag='test')
 
+        folder_path = './results/' + setting + '/'
+        if not os.path.exists(folder_path):
+            os.makedirs(folder_path)
+
+        np.save(folder_path + 'train_data.npy', train_data.data_y)
+        np.save(folder_path + 'train_stamps.npy', train_data.data_stamp)
+
+        np.save(folder_path + 'val_data.npy', vali_data.data_y)
+        np.save(folder_path + 'val_stamps.npy', vali_data.data_stamp)
+
+        np.save(folder_path + 'test_data.npy', test_data.data_y)
+        np.save(folder_path + 'test_stamps.npy', test_data.data_stamp)
+
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
             os.makedirs(path)
@@ -191,6 +204,8 @@ class Exp_Main(Exp_Basic):
 
         preds = []
         trues = []
+        y_mark = []
+        x_mark = []
         folder_path = './test_results/' + setting + '/'
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
@@ -226,12 +241,17 @@ class Exp_Main(Exp_Basic):
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
+                batch_x_mark = batch_x_mark.detach().cpu().numpy()
+                batch_y_mark = batch_y.detach().cpu().numpy()
 
                 pred = outputs  # outputs.detach().cpu().numpy()  # .squeeze()
                 true = batch_y  # batch_y.detach().cpu().numpy()  # .squeeze()
 
                 preds.append(pred)
                 trues.append(true)
+                y_mark.append(batch_y_mark)
+                x_mark.append(batch_x_mark)
+
                 if i % 20 == 0:
                     input = batch_x.detach().cpu().numpy()
                     gt = np.concatenate((input[0, :, -1], true[0, :, -1]), axis=0)
@@ -240,9 +260,16 @@ class Exp_Main(Exp_Basic):
 
         preds = np.array(preds)
         trues = np.array(trues)
+        x_mark = np.array(x_mark)
+        y_mark = np.array(y_mark)
+
         print('test shape:', preds.shape, trues.shape)
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
+
+        x_mark = x_mark.reshape(-1, x_mark.shape[-2], x_mark.shape[-1])
+        y_mark = y_mark.reshape(-1, y_mark.shape[-2], y_mark.shape[-1])
+        
         print('test shape:', preds.shape, trues.shape)
 
         # result save
@@ -262,7 +289,9 @@ class Exp_Main(Exp_Basic):
         np.save(folder_path + 'metrics.npy', np.array([mae, mse, rmse, mape, mspe]))
         np.save(folder_path + 'pred.npy', preds)
         np.save(folder_path + 'true.npy', trues)
-
+        np.save(folder_path + 'x_mark.npy', preds)
+        np.save(folder_path + 'y_mark.npy', trues)
+        
         return
 
     def predict(self, setting, load=False):
