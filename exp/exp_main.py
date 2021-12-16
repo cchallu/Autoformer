@@ -95,14 +95,15 @@ class Exp_Main(Exp_Basic):
         if not os.path.exists(folder_path):
             os.makedirs(folder_path)
 
-        np.save(folder_path + 'train_data.npy', train_data.data_y)
-        np.save(folder_path + 'train_stamps.npy', train_data.data_stamp)
+        print('Saving datasets')
+        np.save(folder_path + 'train_data.npy', train_data.data_y.detach().cpu().numpy())
+        np.save(folder_path + 'train_stamps.npy', train_data.data_stamp.detach().cpu().numpy())
 
-        np.save(folder_path + 'val_data.npy', vali_data.data_y)
-        np.save(folder_path + 'val_stamps.npy', vali_data.data_stamp)
+        np.save(folder_path + 'val_data.npy', vali_data.data_y.detach().cpu().numpy())
+        np.save(folder_path + 'val_stamps.npy', vali_data.data_stamp.detach().cpu().numpy())
 
-        np.save(folder_path + 'test_data.npy', test_data.data_y)
-        np.save(folder_path + 'test_stamps.npy', test_data.data_stamp)
+        np.save(folder_path + 'test_data.npy', test_data.data_y.detach().cpu().numpy())
+        np.save(folder_path + 'test_stamps.npy', test_data.data_stamp.detach().cpu().numpy())
 
         path = os.path.join(self.args.checkpoints, setting)
         if not os.path.exists(path):
