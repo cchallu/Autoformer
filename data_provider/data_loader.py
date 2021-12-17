@@ -154,6 +154,7 @@ class Dataset_ETT_minute(Dataset):
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
+        self.date = df_stamp['date'].copy()
         if self.timeenc == 0:
             df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
             df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
