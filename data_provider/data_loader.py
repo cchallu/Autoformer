@@ -65,7 +65,7 @@ class Dataset_ETT_hour(Dataset):
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
-        self.date = df_stamp['date'].copy()
+        self.date = df_stamp[['date']].copy()
         if self.timeenc == 0:
             df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
             df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
@@ -79,6 +79,13 @@ class Dataset_ETT_hour(Dataset):
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
+        
+        self.date.rename(columns={'date': 'ds'}, inplace=True)
+        self.date.reset_index(drop=True, inplace=True)
+        cols = [self.target] if self.features == 'S' else cols_data
+        self.df_y = pd.concat([self.date, pd.DataFrame(self.data_y, columns=cols)], axis=1)
+        x_cols = [f'ex_{i + 1}' for i in range(self.data_stamp.shape[1])]
+        self.df_x = pd.concat([self.date, pd.DataFrame(self.data_stamp, columns=x_cols)], axis=1)
 
     def __getitem__(self, index):
         s_begin = index
@@ -154,7 +161,7 @@ class Dataset_ETT_minute(Dataset):
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
-        self.date = df_stamp['date'].copy()
+        self.date = df_stamp[['date']].copy()
         if self.timeenc == 0:
             df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
             df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
@@ -170,6 +177,13 @@ class Dataset_ETT_minute(Dataset):
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
+
+        self.date.rename(columns={'date': 'ds'}, inplace=True)
+        self.date.reset_index(drop=True, inplace=True)
+        cols = [self.target] if self.features == 'S' else cols_data
+        self.df_y = pd.concat([self.date, pd.DataFrame(self.data_y, columns=cols)], axis=1)
+        x_cols = [f'ex_{i + 1}' for i in range(self.data_stamp.shape[1])]
+        self.df_x = pd.concat([self.date, pd.DataFrame(self.data_stamp, columns=x_cols)], axis=1)
 
     def __getitem__(self, index):
         s_begin = index
@@ -256,6 +270,7 @@ class Dataset_Custom(Dataset):
 
         df_stamp = df_raw[['date']][border1:border2]
         df_stamp['date'] = pd.to_datetime(df_stamp.date)
+        self.date = df_stamp[['date']].copy()
         if self.timeenc == 0:
             df_stamp['month'] = df_stamp.date.apply(lambda row: row.month, 1)
             df_stamp['day'] = df_stamp.date.apply(lambda row: row.day, 1)
@@ -269,6 +284,14 @@ class Dataset_Custom(Dataset):
         self.data_x = data[border1:border2]
         self.data_y = data[border1:border2]
         self.data_stamp = data_stamp
+
+        self.date.rename(columns={'date': 'ds'}, inplace=True)
+        self.date.reset_index(drop=True, inplace=True)
+        cols = [self.target] if self.features == 'S' else cols_data
+        self.df_y = pd.concat([self.date, pd.DataFrame(self.data_y, columns=cols)], axis=1)
+        x_cols = [f'ex_{i + 1}' for i in range(self.data_stamp.shape[1])]
+        self.df_x = pd.concat([self.date, pd.DataFrame(self.data_stamp, columns=x_cols)], axis=1)
+
 
     def __getitem__(self, index):
         s_begin = index
