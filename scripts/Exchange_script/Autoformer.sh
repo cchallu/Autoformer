@@ -1,5 +1,4 @@
-export CUDA_VISIBLE_DEVICES=4
-
+#export CUDA_VISIBLE_DEVICES=4
 
 python -u run.py \
   --is_training 1 \
@@ -20,6 +19,7 @@ python -u run.py \
   --c_out 8 \
   --des 'Exp' \
   --itr 1
+  --train_epochs 10
 
 python -u run.py \
   --is_training 1 \
