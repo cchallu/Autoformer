@@ -246,7 +246,7 @@ class Exp_Main(Exp_Basic):
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
 
-                mean_X, std_X = self.Data.scaler.mean, self.Data_.scaler.scale_
+                mean_X, std_X = self.Data.scaler.mean_, self.Data_.scaler.scale_
                 batch_y_re_scale = batch_y*std_X+mean_X
                 outputs_re_scale = outputs*std_X+mean_X
 
