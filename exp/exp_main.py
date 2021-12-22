@@ -37,6 +37,7 @@ class Exp_Main(Exp_Basic):
 
     def _get_data(self, flag):
         data_set, data_loader = data_provider(self.args, flag)
+        self.Data = data_set
         return data_set, data_loader
 
     def _select_optimizer(self):
@@ -205,6 +206,8 @@ class Exp_Main(Exp_Basic):
 
         preds = []
         trues = []
+        preds_re_scale = []
+        trues_re_scale = []
         y_mark = []
         x_mark = []
         folder_path = './test_results/' + setting + '/'
@@ -242,6 +245,11 @@ class Exp_Main(Exp_Basic):
                 batch_y = batch_y[:, -self.args.pred_len:, f_dim:].to(self.device)
                 outputs = outputs.detach().cpu().numpy()
                 batch_y = batch_y.detach().cpu().numpy()
+
+                mean_X, std_X = self.Data.scaler.mean, self.Data_.scaler.scale_
+                batch_y_re_scale = batch_y*std_X+mean_X
+                outputs_re_scale = outputs*std_X+mean_X
+
                 batch_x_mark = batch_x_mark.detach().cpu().numpy()
                 batch_y_mark = batch_y_mark.detach().cpu().numpy()
 
@@ -250,6 +258,8 @@ class Exp_Main(Exp_Basic):
 
                 preds.append(pred)
                 trues.append(true)
+                preds_re_scale.append(outputs_re_scale)
+                trues_re_scale.append(batch_y_re_scale)
                 y_mark.append(batch_y_mark)
                 x_mark.append(batch_x_mark)
 
@@ -261,6 +271,8 @@ class Exp_Main(Exp_Basic):
 
         preds = np.array(preds)
         trues = np.array(trues)
+        preds_re_scale = np.array(preds_re_scale)
+        trues_re_scale = np.array(trues_re_scale)
         x_mark = np.array(x_mark)
         y_mark = np.array(y_mark)
 
@@ -268,10 +280,15 @@ class Exp_Main(Exp_Basic):
         preds = preds.reshape(-1, preds.shape[-2], preds.shape[-1])
         trues = trues.reshape(-1, trues.shape[-2], trues.shape[-1])
 
+        print('test re-scale shape:', preds_re_scale.shape, trues_re_scale.shape)
+        preds_re_scale = preds_re_scale.reshape(-1, preds_re_scale.shape[-2], preds_re_scale.shape[-1])
+        trues_re_scale = trues_re_scale.reshape(-1, trues_re_scale.shape[-2], trues_re_scale.shape[-1])
+
         x_mark = x_mark.reshape(-1, x_mark.shape[-2], x_mark.shape[-1])
         y_mark = y_mark.reshape(-1, y_mark.shape[-2], y_mark.shape[-1])
         
         print('test shape:', preds.shape, trues.shape)
+        print('test re-scale shape:', preds_re_scale.shape, trues_re_scale.shape)
 
         # result save
         folder_path = './results/' + setting + '/'
@@ -280,9 +297,14 @@ class Exp_Main(Exp_Basic):
 
         mae, mse, rmse, mape, mspe = metric(preds, trues)
         print('mse:{}, mae:{}'.format(mse, mae))
+
+        mae, mse, rmse, mape, mspe = metric(preds_re_scale, trues_re_scale)
+        print('mse re-scale:{}, mae re-scale:{}'.format(mse, mae))
+
         f = open("result.txt", 'a')
         f.write(setting + "  \n")
         f.write('mse:{}, mae:{}'.format(mse, mae))
+        f.write('means:{}, stds:{}'.format(mean_X, std_X))
         f.write('\n')
         f.write('\n')
         f.close()
